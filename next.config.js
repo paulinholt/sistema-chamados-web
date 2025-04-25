@@ -1,12 +1,9 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
   experimental: {
-    middleware: {
-      // Desabilitar o Edge Runtime para o middleware
-      skipMiddlewareUrlNormalize: true,
-      skipTrailingSlashRedirect: true,
-    },
+    appDir: true,
   },
 }
 
