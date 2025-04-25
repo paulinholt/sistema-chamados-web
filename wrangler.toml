@@ -1,0 +1,32 @@
+// wrangler.toml
+// Configuração para implantação no Cloudflare Workers
+
+name = "sistema-chamados-web"
+main = "src/index.ts"
+compatibility_date = "2025-04-25"
+
+# Configuração do banco de dados D1
+[[d1_databases]]
+binding = "DB"
+database_name = "sistema_chamados_db"
+database_id = "sistema-chamados-db"
+
+# Configuração de variáveis de ambiente
+[vars]
+JWT_SECRET = "sistema_chamados_web_secret_key_2025"
+WHATSAPP_API_URL = "https://api.whatsapp.com/send"
+WHATSAPP_PHONE = "+5511977123444"
+
+# Configuração de rotas
+[routes]
+pattern = "sistema-chamados.example.com/*"
+zone_name = "example.com"
+
+# Configuração de build
+[build]
+command = "npm run build"
+watch_dir = "src"
+
+# Configuração de compatibilidade
+[compatibility_flags]
+nodejs_compat = true

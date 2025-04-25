@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Projetos - Sistema de Chamados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-height: 50px;
+            margin-right: 15px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .btn-action {
+            margin-right: 5px;
+        }
+        .status-badge {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="static/logo.png" alt="Logo" class="logo">
+                <h2>Gestão de Projetos</h2>
+            </div>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoProjeto">Novo Projeto</button>
+                <button class="btn btn-outline-secondary" id="btnExportar">Exportar CSV</button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Projetos Ativos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Sigla</th>
+                                        <th>Nome</th>
+                                        <th>Gerente</th>
+                                        <th>Contato</th>
+                                        <th>Chamados</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaProjetos">
+                                    <!-- Dados serão carregados via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Chamados por Projeto</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chamadosPorProjeto"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Tempo Médio de Atendimento</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="tempoMedioPorProjeto"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Novo Projeto -->
+    <div class="modal fade" id="novoProjeto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Projeto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNovoProjeto">
+                        <div class="mb-3">
+                            <label for="sigla" class="form-label">Sigla</label>
+                            <input type="text" class="form-control" id="sigla" required maxlength="10">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome do Projeto</label>
+                            <input type="text" class="form-control" id="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="descricao" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gerente" class="form-label">Gerente Responsável</label>
+                            <input type="text" class="form-control" id="gerente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email do Gerente</label>
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone do Gerente</label>
+                            <input type="text" class="form-control" id="telefone">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarProjeto">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Projeto -->
+    <div class="modal fade" id="editarProjeto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Projeto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarProjeto">
+                        <input type="hidden" id="editId">
+                        <div class="mb-3">
+                            <label for="editSigla" class="form-label">Sigla</label>
+                            <input type="text" class="form-control" id="editSigla" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNome" class="form-label">Nome do Projeto</label>
+                            <input type="text" class="form-control" id="editNome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="editDescricao" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGerente" class="form-label">Gerente Responsável</label>
+                            <input type="text" class="form-control" id="editGerente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email do Gerente</label>
+                            <input type="email" class="form-control" id="editEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTelefone" class="form-label">Telefone do Gerente</label>
+                            <input type="text" class="form-control" id="editTelefone">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnAtualizarProjeto">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes do Projeto -->
+    <div class="modal fade" id="detalhesProjeto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalhesTitle">Detalhes do Projeto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Informações do Projeto</h6>
+                            <p><strong>Sigla:</strong> <span id="detSigla"></span></p>
+                            <p><strong>Nome:</strong> <span id="detNome"></span></p>
+                            <p><strong>Descrição:</strong> <span id="detDescricao"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Gerente Responsável</h6>
+                            <p><strong>Nome:</strong> <span id="detGerente"></span></p>
+                            <p><strong>Email:</strong> <span id="detEmail"></span></p>
+                            <p><strong>Telefone:</strong> <span id="detTelefone"></span></p>
+                        </div>
+                    </div>
+                    <h6>Chamados Recentes</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detChamados">
+                                <!-- Dados serão carregados via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Carregar dados dos projetos
+        function carregarProjetos() {
+            fetch('/projetos')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const projetos = data.projetos.filter(p => p.ativo === 1);
+                        const tbody = document.getElementById('tabelaProjetos');
+                        tbody.innerHTML = '';
+                        
+                        projetos.forEach(projeto => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${projeto.sigla}</td>
+                                <td>${projeto.nome}</td>
+                                <td>${projeto.gerente}</td>
+                                <td>${projeto.email_gerente || '-'}</td>
+                                <td><span class="badge bg-info">0</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info btn-action" onclick="verDetalhes(${projeto.id_projeto})">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                    <button class="btn btn-sm btn-primary btn-action" onclick="editarProjeto(${projeto.id_projeto})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-danger btn-action" onclick="desativarProjeto(${projeto.id_projeto})">
+                                        <i class="bi bi-trash"></i> Desativar
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar projetos:', error));
+        }
+
+        // Carregar estatísticas
+        function carregarEstatisticas() {
+            fetch('/projetos/estatisticas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Gráfico de chamados por projeto
+                        const chamadosPorProjeto = data.chamados_por_projeto;
+                        const ctxChamados = document.getElementById('chamadosPorProjeto').getContext('2d');
+                        new Chart(ctxChamados, {
+                            type: 'bar',
+                            data: {
+                                labels: chamadosPorProjeto.map(item => item.sigla),
+                                datasets: [{
+                                    label: 'Total de Chamados',
+                                    data: chamadosPorProjeto.map(item => item.total_chamados),
+                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            precision: 0
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Gráfico de tempo médio por projeto
+                        const tempoMedioPorProjeto = data.tempo_medio_por_projeto;
+                        const ctxTempo = document.getElementById('tempoMedioPorProjeto').getContext('2d');
+                        new Chart(ctxTempo, {
+                            type: 'bar',
+                            data: {
+                                labels: tempoMedioPorProjeto.map(item => item.sigla),
+                                datasets: [{
+                                    label: 'Tempo Médio (minutos)',
+                                    data: tempoMedioPorProjeto.map(item => item.tempo_medio),
+                                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                 
+(Content truncated due to size limit. Use line ranges to read in chunks)

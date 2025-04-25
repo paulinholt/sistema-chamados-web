@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Atendimento ao Cliente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo-left, .logo-right {
+            max-width: 150px;
+            max-height: 60px;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #003366;
+        }
+        .rac-number {
+            font-size: 14pt;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+        .section-header {
+            background-color: #f0f0f0;
+            padding: 8px;
+            font-weight: bold;
+        }
+        .section-content {
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+            width: 30%;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logos">
+            <img src="static/img/logo_left.png" alt="Logo Empresa" class="logo-left">
+            <img src="static/img/logo_right.png" alt="Logo Sistema" class="logo-right">
+        </div>
+        <div class="title">Relatório de Atendimento Ao Cliente</div>
+        <div class="rac-number">{{ chamado.id_chamado }} - {{ chamado.data_formatada }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">Cliente</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <th>Cliente</th>
+                    <td>{{ chamado.cliente }}</td>
+                </tr>
+                <tr>
+                    <th>CNPJ/CPF</th>
+                    <td>{{ chamado.cnpj_cpf or 'Não informado' }}</td>
+                </tr>
+                <tr>
+                    <th>Solicitante</th>
+                    <td>{{ chamado.contato }}</td>
+                </tr>
+                <tr>
+                    <th>Telefone</th>
+                    <td>{{ chamado.telefone or 'Não informado' }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ chamado.email or 'Não informado' }}</td>
+                </tr>
+                <tr>
+                    <th>Projeto</th>
+                    <td>{{ chamado.projeto_sigla or 'Não associado' }} - {{ chamado.projeto_nome or '' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">Motivo da Solicitação</div>
+        <div class="section-content">
+            <p>{{ chamado.descricao }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">Diagnóstico e Solução</div>
+        <div class="section-content">
+            <p>{{ chamado.analise or chamado.solucao or 'Não informado' }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">Atendimento</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <th>Data</th>
+                    <th>Hora Início</th>
+                    <th>Hora Fim</th>
+                </tr>
+                <tr>
+                    <td>{{ chamado.data_formatada }}</td>
+                    <td>{{ chamado.hora_inicio }}</td>
+                    <td>{{ chamado.hora_fim }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">Responsáveis</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <th>Técnico</th>
+                    <td>{{ chamado.plantonista }}</td>
+                </tr>
+                <tr>
+                    <th>Gerente</th>
+                    <td>{{ chamado.gerente_projeto or 'Não informado' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    {% if chamado.observacoes or chamado.recomendacoes %}
+    <div class="section">
+        <div class="section-header">Observações e Recomendações</div>
+        <div class="section-content">
+            {% if chamado.observacoes %}
+            <p><strong>Observações:</strong> {{ chamado.observacoes }}</p>
+            {% endif %}
+            {% if chamado.recomendacoes %}
+            <p><strong>Recomendações:</strong> {{ chamado.recomendacoes }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>Este relatório foi gerado automaticamente pelo Sistema de Gerenciamento de Chamados</p>
+        <p>Data de geração: {{ chamado.data_formatada }} - Tempo de atendimento: {{ chamado.tempo_formatado }}</p>
+    </div>
+</body>
+</html>
